@@ -1,0 +1,73 @@
+#MySQL queries for Android Census database
+#https://census.tsyrklevich.net/
+
+#Retrieve name of device with build "JZO54K" and model "GT-N7000" built before 9999999999 UTC
+
+SELECT name from devices where id IN (SELECT A.device_id FROM (select device_id from system_properties where property = 'ro.build.date.utc' and value < 9999999999) A INNER JOIN (select device_id from system_properties where (property, value) IN (('ro.product.model','GT-N7000'),('ro.build.id','JZO54K')) GROUP BY device_id HAVING count(distinct property, value)=2) B ON A.device_id = B.device_id);
++--------------------------+
+| name                     |
++--------------------------+
+| Samsung GT-N7000 (4.1.2) |
++--------------------------+
+1 row in set (0.31 sec)
+
+
+#Retrieve device names with a specific build id
+
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.id') AS P1 WHERE P1.value = "JWR66Y";
++-------------------------------+
+| name                          |
++-------------------------------+
+| Samsung Galaxy Nexus (4.3)    |
+| LG Nexus 4 (4.3)              |
+| ASUS Nexus 7 (4.3)            |
+| Samsung Galaxy Nexus (4.3)    |
+| HTC Desire 516 dual sim (4.3) |
+| Samsung Nexus 10 (4.3)        |
++-------------------------------+
+6 rows in set (0.24 sec)
+
+#Retrieve versions of specific product model string
+
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.product.model') AS P1 WHERE P1.value = "Nexus 10";
++--------------------------+
+| name                     |
++--------------------------+
+| Samsung Nexus 10 (4.4.2) |
+| Samsung Nexus 10 (5.1.1) |
+| Samsung Nexus 10 (4.2)   |
+| Samsung Nexus 10 (4.3)   |
++--------------------------+
+4 rows in set (0.23 sec)
+
+#Find Gingerbread, Honeycomb, and Jellybean (4.0-4.2) devices vulnerable to bug 8219321
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1373206680 and P1.name RLIKE '.*\\([2-3][.][0-3].*' or P1.name RLIKE '.*\\(4[.][0-2].*';
+
+#Do the same but only for Samsung
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1373206680 and P1.name RLIKE 'Samsung.*\\([2-3][.][0-3].*' or P1.name RLIKE 'Samsung.*\\(4[.][0-2].*';
+
+#Find Samsung Gingerbread, Honeycomb, and Jellybean (4.0-4.2) devices vulnerable to bug 9695860
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1372870560 and P1.value > 1289385631 and P1.name RLIKE 'Samsung.*\\([2-3][.][0-3].*' or P1.name RLIKE 'Samsung.*\\(4[.][0-2].*';
+
+#Find devices built after extralen bug (9695860), but before bug 9950697 (requires deodexed system APK to exploit)
+select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1374598617 and P1.value > 1372870560;
+
++-----------------------------+
+| name                        |
++-----------------------------+
+| Huawei C8815 (4.1.2)        |
+| LG LG-P760 (4.1.2)          |
+| Samsung SC-04E (4.2.2)      |
+| Huawei G520-T10 (4.2.1)     |
+| ASUS ME371MG (4.1.2)        |
+| Sony Ericsson LT26i (4.1.2) |
+| Sony Ericsson LT26w (4.1.2) |
+| Samsung GT-S5300 (2.3.6)    |
+| Samsung SM-T310 (4.2.2)     |
+| IRIVER NS-14T004 (4.1.1)    |
+| HTC One mini (4.2.2)        |
+| Samsung GT-I8160 (4.1.2)    |
+| Samsung GT-I9500 (4.2.2)    |
++-----------------------------+
+13 rows in set (0.19 sec)
+
