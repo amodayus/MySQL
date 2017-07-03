@@ -49,7 +49,7 @@ select P1.name from (select name,value from devices LEFT JOIN system_properties 
 #Find Samsung Gingerbread, Honeycomb, and Jellybean (4.0-4.2) devices vulnerable to bug 9695860
 select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1372870560 and P1.value > 1289385631 and P1.name RLIKE 'Samsung.*\\([2-3][.][0-3].*' or P1.name RLIKE 'Samsung.*\\(4[.][0-2].*';
 
-#Find devices built after extralen bug (9695860), but before bug 9950697 (requires deodexed system APK to exploit)
+#Find devices built after extralen bug (9695860), but before bug 9950697 (requires USB connection to exploit)
 select P1.name from (select name,value from devices LEFT JOIN system_properties on devices.id = system_properties.device_id where property = 'ro.build.date.utc') AS P1 WHERE P1.value < 1374598617 and P1.value > 1372870560;
 
 +-----------------------------+
